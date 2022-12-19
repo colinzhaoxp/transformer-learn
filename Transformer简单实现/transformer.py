@@ -24,20 +24,20 @@ class Embedding(nn.Moudule):
         self.embedding = nn.Embedding(vocab_size, config.d_model,
                             padding_idx=config.PAD)
         
-        def forward(self, x):
-            # 需要对每个句子进行处理
-            for i in range(len(x)):
-                # 如果当前句子的长度小于我们设定的长度，那么就扩充
-                # 用特定的符号进行填充即可
-                if len(x[i]) < config.padding_size:
-                    x[i].extend([config.UNK] * (config.padding_size - len(x[i])))
-                else:
-                    # 如果过长，那么就将多余的部分去除掉。
-                    x[i] = x[i][:config.padding_size]
-            # (batch * seq_len)  vocab_size * config.d_model
-            # 得到 batch_size * seq_len * d_model
-            x = self.embedding(torch.tensor(x))
-            return x
+    def forward(self, x):
+        # 需要对每个句子进行处理
+        for i in range(len(x)):
+            # 如果当前句子的长度小于我们设定的长度，那么就扩充
+            # 用特定的符号进行填充即可
+            if len(x[i]) < config.padding_size:
+                x[i].extend([config.UNK] * (config.padding_size - len(x[i])))
+            else:
+                # 如果过长，那么就将多余的部分去除掉。
+                x[i] = x[i][:config.padding_size]
+        # (batch * seq_len)  vocab_size * config.d_model
+        # 得到 batch_size * seq_len * d_model
+        x = self.embedding(torch.tensor(x))
+        return x
 
 
 class Positional_Encoding(nn.Module):
@@ -58,9 +58,7 @@ class Positional_Encoding(nn.Module):
         for pos in range(positional_encoding.shape[0]):
             # 对单词中的每个向量的值
             for i in range(positional_encoding.shape[1]):
-                positional_encoding[pos][i] = math.sin(pos/(1000**(2*i/self.d_model))) \
-                    if i %2 == 0 \
-                    else math.cos(pos/(10000**(2*i/self.d_model)))
+                positional_encoding[pos][i] = math.sin(pos/(1000**(2*i/self.d_model))) if i %2 == 0 else math.cos(pos/(10000**(2*i/self.d_model)))
         return torch.from_numpy(positional_encoding)
 
 
