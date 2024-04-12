@@ -58,7 +58,7 @@ class Positional_Encoding(nn.Module):
         for pos in range(positional_encoding.shape[0]):
             # 对单词中的每个向量的值
             for i in range(positional_encoding.shape[1]):
-                positional_encoding[pos][i] = math.sin(pos/(1000**(2*i/self.d_model))) if i %2 == 0 else math.cos(pos/(10000**(2*i/self.d_model)))
+                positional_encoding[pos][i] = math.sin(pos/(10000**(2*i/self.d_model))) if i % 2 == 0 else math.cos(pos/(10000**(2*i/self.d_model)))
         return torch.from_numpy(positional_encoding)
 
 
@@ -124,12 +124,12 @@ class Add_Norm(nn.Module):
     def __init__(self):
         super(Add_Norm, self).__init__()
         self.dropout = nn.Dropout(config.p)
+        self.layer_norm = nn.LayerNorm(config.d_model)
     
     def forward(self, x, sub_layer, **kwargs):
         sub_output = sub_layer(x, **kwargs)
         x = self.dropout(x + sub_output)
-        layer_norm = nn.LayerNorm(x.shape[1:])
-        out = layer_norm(x)
+        out = self.layer_norm(x)
         return out
 
 class Encoder(nn.Module):
